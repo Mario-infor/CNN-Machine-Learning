@@ -12,7 +12,7 @@ public class GridController : MonoBehaviour
     public GameObject player;
 
     private GridPosition[,] gridPosMatrix;
-    private int[,] matrix;
+    //private int[,] matrix;
     private Vector3 lastPlayerPos;
     private bool startPainting = false;
 
@@ -24,7 +24,7 @@ public class GridController : MonoBehaviour
         BoundsInt bounds = tilemap.cellBounds;
         TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
 
-        matrix = new int[bounds.size.x, bounds.size.y];
+        //matrix = new int[bounds.size.x, bounds.size.y];
         gridPosMatrix = new GridPosition[bounds.size.x, bounds.size.y];
 
         for (int x = bounds.x; x < bounds.x + bounds.size.x; x++)
@@ -39,8 +39,7 @@ public class GridController : MonoBehaviour
                 
                 if (tile != null)
                 {
-                    matrix[x - bounds.x, y - bounds.y] = 1;
-                   
+                    //matrix[x - bounds.x, y - bounds.y] = 1;
                     // Haz algo con el Tile en la posición cellPosition
                     Debug.Log($"Tile en la posición {cellPosition} {tile.name}");
                     //Debug.Log($"Tile en la posición ({x - bounds.x}, {(y - bounds.y) * bounds.size.x})");
@@ -69,7 +68,7 @@ public class GridController : MonoBehaviour
 
         if (tilemap.GetTile(location))
         {
-            Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.3f);
+            Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.5f);
             player.transform.position = moveTo;
             Instantiate(visitedTile, moveTo, Quaternion.identity); 
             
