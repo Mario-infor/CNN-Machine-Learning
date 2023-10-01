@@ -6943,8 +6943,17 @@ MonoBehaviour:
   tilemap: {fileID: 701725388}
   visitedTile: {fileID: 7313128520306717489, guid: 4eed5bc9549322e4b967d61d046266ad,
     type: 3}
+  startTile: {fileID: 7313128520306717489, guid: eca0516100d26f64c9816244318f1ada,
+    type: 3}
+  GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
+    type: 3}
   location: {x: 0, y: 0, z: 0}
   player: {fileID: 2014856139}
+  epsilon: 0.9
+  discountFactor: 1
+  speed: 0.05
+  learningRate: 0.9
+  episodes: 1000
 --- !u!1 &1483928470
 GameObject:
   m_ObjectHideFlags: 0

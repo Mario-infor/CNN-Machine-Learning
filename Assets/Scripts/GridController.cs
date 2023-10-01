@@ -5,11 +5,14 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using System;
+using UnityEditor.Tilemaps;
 
 public class GridController : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private GameObject visitedTile;
+    [SerializeField] private GameObject startTile;
+    [SerializeField] private GameObject GoalTile;
     [SerializeField] private Vector3Int location;
     [SerializeField] private GameObject player;
     [SerializeField] private float epsilon = 0.9f;
@@ -41,14 +44,22 @@ public class GridController : MonoBehaviour
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
                 gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100);
-                
+
                 if (tile != null)
                 {
                     Debug.Log($"Tile en la posición {cellPosition} {tile.name}");
                 }
             }
         }
-        StartCoroutine(PaintAllTiles());
+
+        int randomGoalX;
+        int randomGoalY;
+     
+        getStartingLocation(out randomGoalX, out randomGoalY);
+        gridPosMatrix[randomGoalX, randomGoalY].Reward = 100;
+        paintTile(gridPosMatrix[randomGoalX, randomGoalY].X, gridPosMatrix[randomGoalX, randomGoalY].Y, GoalTile);
+        
+        StartCoroutine(TrainQLearning());
         StartCoroutine(PaintAllTiles());
     }
 
@@ -58,8 +69,11 @@ public class GridController : MonoBehaviour
         if(Input.GetMouseButtonDown(1))
             GetTilePosition();
 
-        if(Input.GetKeyDown(KeyCode.Space))
-            startPainting = true;
+        /*if(Input.GetKeyDown(KeyCode.Space))
+            startPainting = true;*/
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            startTraining = true;
     }
 
     void GetTilePosition() 
@@ -71,8 +85,8 @@ public class GridController : MonoBehaviour
         {
             Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.5f);
             player.transform.position = moveTo;
-            Instantiate(visitedTile, moveTo, Quaternion.identity); 
-            
+            Instantiate(visitedTile, moveTo, Quaternion.identity);
+
             Debug.Log("Tile at: " + location);
         }
         else
@@ -88,14 +102,13 @@ public class GridController : MonoBehaviour
 
     private void getStartingLocation(out int X, out int Y)
     {
-        
         X = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
-        Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
+        Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(1));
 
         while (isTerminalState(X, Y))
         {
             X = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
-            Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
+            Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(1));
         }
     }
 
@@ -135,6 +148,12 @@ public class GridController : MonoBehaviour
         }
     }
 
+    private void paintTile(int x, int y, GameObject tile) 
+    {
+        Vector3 pos = new Vector3(gridPosMatrix[x, y].X + 0.5f, gridPosMatrix[x, y].Y + 0.5f);
+        Instantiate(tile, pos, Quaternion.identity);
+    }
+
     IEnumerator TrainQLearning()
     {
         while (true)
@@ -148,6 +167,7 @@ public class GridController : MonoBehaviour
                     int y;
 
                     getStartingLocation(out x, out y);
+                    paintTile(gridPosMatrix[x, y].X, gridPosMatrix[x, y].Y, startTile);
 
                     while (!isTerminalState(x, y))
                     {
@@ -157,6 +177,10 @@ public class GridController : MonoBehaviour
                         int oldY = y;
 
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
+
+                        /********************************************************************/
+                        paintTile(gridPosMatrix[x, y].X, gridPosMatrix[x, y].Y, visitedTile);
+                        /********************************************************************/
 
                         int reward = gridPosMatrix[x, y].Reward;
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
