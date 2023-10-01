@@ -4,17 +4,24 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
+using System;
 
 public class GridController : MonoBehaviour
 {
-    public Tilemap tilemap;
-    public GameObject visitedTile;
-    public Vector3Int location;
-    public GameObject player;
+    [SerializeField] private Tilemap tilemap;
+    [SerializeField] private GameObject visitedTile;
+    [SerializeField] private Vector3Int location;
+    [SerializeField] private GameObject player;
+    [SerializeField] private float epsilon = 0.9f;
+    [SerializeField] private float discountFactor = 1f;
+    [SerializeField] private float speed = 0.05f;
+    [SerializeField] private float learningRate = 0.9f;
+    [SerializeField] private int episodes = 1000;
 
     private TileState[,] gridPosMatrix;
     private string[] actions = { "up", "right", "down", "left" };
     private bool startPainting = false;
+    private bool startTraining = false;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +48,7 @@ public class GridController : MonoBehaviour
                 }
             }
         }
+        StartCoroutine(PaintAllTiles());
         StartCoroutine(PaintAllTiles());
     }
 
@@ -91,16 +99,16 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private float getNextAction(int x, int y, float epsilon)
+    private int getNextAction(int x, int y, float epsilon)
     {
         System.Random random = new System.Random();
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            return gridPosMatrix[x, y].qValues.Max();
+            return Array.IndexOf(gridPosMatrix[x, y].qValues, gridPosMatrix[x, y].qValues.Max());
         }
         else 
         {
-            return gridPosMatrix[x, y].qValues[UnityEngine.Random.Range(0, 4)];
+            return UnityEngine.Random.Range(0, 4);
         }
     }
 
@@ -127,8 +135,46 @@ public class GridController : MonoBehaviour
         }
     }
 
+    IEnumerator TrainQLearning()
+    {
+        while (true)
+        {
+            if (startTraining)
+            {
 
-    IEnumerator PaintAllTiles()
+                for (int i = 0; i < episodes; i++)
+                {
+                    int x;
+                    int y;
+
+                    getStartingLocation(out x, out y);
+
+                    while (!isTerminalState(x, y))
+                    {
+                        int actionIndex = getNextAction(x, y, epsilon);
+
+                        int oldX = x;
+                        int oldY = y;
+
+                        getNextLocation(oldX, oldY, actionIndex, out x, out y);
+
+                        int reward = gridPosMatrix[x, y].Reward;
+                        float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
+
+                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max() - oldQValue);
+
+                        float newQValue = oldQValue + (learningRate * temporalDifference);
+                        gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
+                    }
+                    yield return new WaitForSeconds(speed);
+                }
+                startPainting = startTraining;
+            }
+            yield return null;
+        }
+    }
+
+        IEnumerator PaintAllTiles()
     {
         while (true)
         {
