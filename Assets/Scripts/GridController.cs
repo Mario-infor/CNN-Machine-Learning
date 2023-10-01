@@ -44,11 +44,6 @@ public class GridController : MonoBehaviour
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
                 gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100);
-
-                if (tile != null)
-                {
-                    Debug.Log($"Tile en la posición {cellPosition} {tile.name}");
-                }
             }
         }
 
@@ -57,8 +52,10 @@ public class GridController : MonoBehaviour
      
         getStartingLocation(out randomGoalX, out randomGoalY);
         gridPosMatrix[randomGoalX, randomGoalY].Reward = 100;
-        paintTile(gridPosMatrix[randomGoalX, randomGoalY].X, gridPosMatrix[randomGoalX, randomGoalY].Y, GoalTile);
-        
+        paintTile(randomGoalX, randomGoalY, GoalTile);
+        movePlayer(randomGoalX, randomGoalY);
+
+
         StartCoroutine(TrainQLearning());
         StartCoroutine(PaintAllTiles());
     }
@@ -97,7 +94,7 @@ public class GridController : MonoBehaviour
 
     private bool isTerminalState(int x, int y)
     {
-        return (gridPosMatrix[x, y].Reward == -100);
+        return (gridPosMatrix[x, y].Reward != -1);
     }
 
     private void getStartingLocation(out int X, out int Y)
@@ -154,20 +151,30 @@ public class GridController : MonoBehaviour
         Instantiate(tile, pos, Quaternion.identity);
     }
 
+    private void movePlayer(int x, int y)
+    {
+        Vector3 pos = new Vector3(gridPosMatrix[x, y].X + 0.5f, gridPosMatrix[x, y].Y + 0.5f);
+        player.transform.position = pos;
+    }
+
     IEnumerator TrainQLearning()
     {
         while (true)
         {
             if (startTraining)
             {
+                int startX;
+                int startY;
+
+                getStartingLocation(out startX, out startY);
+                paintTile(startX, startY, startTile);
+                movePlayer(startX, startY);
 
                 for (int i = 0; i < episodes; i++)
                 {
-                    int x;
-                    int y;
-
-                    getStartingLocation(out x, out y);
-                    paintTile(gridPosMatrix[x, y].X, gridPosMatrix[x, y].Y, startTile);
+                    Debug.Log($"Episode: {i}");
+                    int x = startX;
+                    int y = startY;
 
                     while (!isTerminalState(x, y))
                     {
@@ -179,20 +186,22 @@ public class GridController : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
 
                         /********************************************************************/
-                        paintTile(gridPosMatrix[x, y].X, gridPosMatrix[x, y].Y, visitedTile);
+                        paintTile(x, y, visitedTile);
+                        movePlayer(x, y);
                         /********************************************************************/
 
                         int reward = gridPosMatrix[x, y].Reward;
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
 
-                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max() - oldQValue);
+                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max()) - oldQValue;
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
                         gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
+                        yield return new WaitForSeconds(speed);
                     }
-                    yield return new WaitForSeconds(speed);
+                    
                 }
-                startPainting = startTraining;
+                startTraining = false;
             }
             yield return null;
         }

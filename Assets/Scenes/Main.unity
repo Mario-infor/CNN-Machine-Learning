@@ -6951,7 +6951,7 @@ MonoBehaviour:
   player: {fileID: 2014856139}
   epsilon: 0.9
   discountFactor: 1
-  speed: 0.05
+  speed: 0
   learningRate: 0.9
   episodes: 1000
 --- !u!1 &1483928470
