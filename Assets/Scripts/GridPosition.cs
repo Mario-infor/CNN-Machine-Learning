@@ -1,13 +1,15 @@
-public class GridPosition
+public class TileState
 {
     public int X { get; set; }
-    public int Y { get; set; }
-    public int Value { get; set; }
+    public int Y  { get; set; }
+    public int Reward { get; set; }
+    public float[] qValues { get; set; }
 
-    public GridPosition(int x, int y, int value) 
+    public TileState(int x, int y, int reawrd) 
     {
         X = x;
         Y = y;
-        Value = value;
+        Reward = reawrd;
+        qValues = new float[4];
     }
 }

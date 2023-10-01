@@ -12,7 +12,8 @@ public class GridController : MonoBehaviour
     public GameObject player;
 
     private GridPosition[,] gridPosMatrix;
-    //private int[,] matrix;
+    private int[,] rewardsMatrix;
+  
     private Vector3 lastPlayerPos;
     private bool startPainting = false;
 
