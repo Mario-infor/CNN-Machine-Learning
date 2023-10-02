@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.Linq;
 using System;
 using UnityEditor.Tilemaps;
+using UnityEngine.UI;
 
 public class GridController : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class GridController : MonoBehaviour
     [SerializeField] private GameObject GoalTile;
     [SerializeField] private Vector3Int location;
     [SerializeField] private GameObject player;
+    [SerializeField] private Text textWins;
+    [SerializeField] private Text textEpisodes;
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
     [SerializeField] private float speed = 0.05f;
