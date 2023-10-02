@@ -17,29 +17,32 @@ public class FileManager
         Path = Application.dataPath + fileName + extension;
     }
 
-    public void writeQValuesCSV(float[,] qValues) 
+    public void writeQValuesCSV(TileState[,] gridPosMatrix) 
     {
         using (StreamWriter writer = new StreamWriter(Path))
         {
-            for (int i = 0; i < qValues.GetLength(0); i++)
+            for (int i = 0; i < gridPosMatrix.GetLength(0); i++)
             {
-                for (int j = 0; j < qValues.GetLength(1); j++)
+                for (int j = 0; j < gridPosMatrix.GetLength(1); j++)
                 {
-                    writer.Write(qValues[i, j]);
-
-                    if (j < qValues.GetLength(1) - 1)
+                    for (int k = 0; k < gridPosMatrix[i, j].qValues.Length; k++)
                     {
-                        writer.Write(",");
+                        writer.Write(gridPosMatrix[i, j].qValues[k]);
+                        
+                        if (k < gridPosMatrix[i, j].qValues.GetLength(1) - 1)
+                        {
+                            writer.Write(",");
+                        }
                     }
+                    writer.WriteLine();
                 }
-                writer.WriteLine();
             }
         }
     }
 
-    public float[,] readQValuesCSV()
+    public List<float[]> readQValuesCSV()
     {
-        float[,] qValues = null;
+        List<float[]> qValues = new List<float[]>();
 
         if (File.Exists(Path)) 
         {
@@ -50,21 +53,21 @@ public class FileManager
                 for (int i = 0; i < lines.Length; i++)
                 {
                     string[] values = lines[i].Split(',');
-                    
-                    if (qValues == null)
-                        qValues = new float[lines.Length, values.Length];
+
+                    float[] value = new float[values.Length];
 
                     for (int j = 0; j < values.Length; j++)
                     {
                         if (float.TryParse(values[j], out float floatValue))
                         {
-                            qValues[i, j] = floatValue;
+                            value[j] = floatValue;
                         }
                         else
                         {
                             Debug.LogWarning($"No se pudo convertir el valor a flotante: {values[j]}");
                         }
                     }
+                    qValues.Add(value);
                 }
             }
         }
