@@ -7,6 +7,8 @@ using System.Linq;
 using System;
 using UnityEditor.Tilemaps;
 using UnityEngine.UI;
+using TMPro;
+using TMPro.EditorUtilities;
 
 public class GridController : MonoBehaviour
 {
@@ -16,8 +18,8 @@ public class GridController : MonoBehaviour
     [SerializeField] private GameObject GoalTile;
     [SerializeField] private Vector3Int location;
     [SerializeField] private GameObject player;
-    [SerializeField] private Text textWins;
-    [SerializeField] private Text textEpisodes;
+    [SerializeField] private TMP_Text textWins;
+    [SerializeField] private TMP_Text textEpisodes;
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
     [SerializeField] private float speed = 0.05f;
@@ -32,6 +34,8 @@ public class GridController : MonoBehaviour
     private string[] actions = { "up", "right", "down", "left" };
     private bool startPainting = false;
     private bool startTraining = false;
+    private int winsCount = 0;
+    private int episodesCount = 0;
 
     void Start()
     {
@@ -75,6 +79,9 @@ public class GridController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
             startTraining = true;
+
+        textWins.text = $"Wins: {winsCount}";
+        textEpisodes.text = $"Episode: {episodesCount}";
     }
 
     void GetTilePosition() 
@@ -167,9 +174,9 @@ public class GridController : MonoBehaviour
         {
             if (startTraining)
             {
-                int winsCount = 0;
                 for (int i = 0; i < episodes; i++)
                 {
+                    episodesCount = i;
                     int x;
                     int y;
                     getStartingLocation(out x, out y);
@@ -193,7 +200,6 @@ public class GridController : MonoBehaviour
                         if (reward == 100)
                         {
                             winsCount++;
-                            Debug.Log($"Goal!!! {winsCount}");
                         }
 
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
@@ -227,6 +233,7 @@ public class GridController : MonoBehaviour
 
                 for (int i = 0; i < episodes; i++)
                 {
+                    episodesCount = i;
                     Debug.Log($"Episode: {i}");
                     int x = startX;
                     int y = startY;
@@ -246,6 +253,12 @@ public class GridController : MonoBehaviour
                         /********************************************************************/
 
                         int reward = gridPosMatrix[x, y].Reward;
+
+                        if (reward == 100)
+                        {
+                            winsCount++;
+                        }
+
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
 
                         float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max()) - oldQValue;
