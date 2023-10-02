@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class TileState
 {
     public int X { get; set; }
@@ -5,11 +7,14 @@ public class TileState
     public int Reward { get; set; }
     public float[] qValues { get; set; }
 
-    public TileState(int x, int y, int reawrd) 
+    public GameObject TileType { get; set; }
+
+    public TileState(int x, int y, int reawrd, GameObject tileType) 
     {
         X = x;
         Y = y;
         Reward = reawrd;
         qValues = new float[4];
+        TileType = tileType;
     }
 }

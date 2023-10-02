@@ -30,15 +30,11 @@ public class GridController : MonoBehaviour
     private bool startPainting = false;
     private bool startTraining = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         fileManager = new FileManager(qValuesFileName, qValuesFileExtension);
-        // Accede a las posiciones de los Tiles en el Tilemap
         BoundsInt bounds = tilemap.cellBounds;
         TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
-
-        //matrix = new int[bounds.size.x, bounds.size.y];
         gridPosMatrix = new TileState[bounds.size.x, bounds.size.y];
 
         for (int x = bounds.x; x < bounds.x + bounds.size.x; x++)
@@ -48,7 +44,9 @@ public class GridController : MonoBehaviour
                 Vector3Int cellPosition = new Vector3Int(x, y, 0);
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
-                gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100);
+                gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
+                GameObject tempTile = createTile(x - bounds.x, y - bounds.y, visitedTile);
+
             }
         }
 
@@ -57,7 +55,7 @@ public class GridController : MonoBehaviour
      
         getStartingLocation(out randomGoalX, out randomGoalY);
         gridPosMatrix[randomGoalX, randomGoalY].Reward = 100;
-        paintTile(randomGoalX, randomGoalY, GoalTile);
+        createTile(randomGoalX, randomGoalY, GoalTile);
         movePlayer(randomGoalX, randomGoalY);
 
         if(startRandomEachEpisode)
@@ -148,10 +146,10 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void paintTile(int x, int y, GameObject tile) 
+    private GameObject createTile(int x, int y, GameObject tile) 
     {
         Vector3 pos = new Vector3(gridPosMatrix[x, y].X + 0.5f, gridPosMatrix[x, y].Y + 0.5f);
-        Instantiate(tile, pos, Quaternion.identity);
+        return Instantiate(tile, pos, Quaternion.identity);
     }
 
     private void movePlayer(int x, int y)
@@ -184,7 +182,7 @@ public class GridController : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
 
                         /********************************************************************/
-                        paintTile(x, y, visitedTile);
+                        //paintTile(x, y, visitedTile);
                         movePlayer(x, y);
                         /********************************************************************/
 
@@ -221,7 +219,7 @@ public class GridController : MonoBehaviour
                 int startY;
 
                 getStartingLocation(out startX, out startY);
-                paintTile(startX, startY, startTile);
+                createTile(startX, startY, startTile);
                 movePlayer(startX, startY);
 
                 for (int i = 0; i < episodes; i++)
@@ -240,7 +238,7 @@ public class GridController : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
 
                         /********************************************************************/
-                        paintTile(x, y, visitedTile);
+                        //paintTile(x, y, visitedTile);
                         movePlayer(x, y);
                         /********************************************************************/
 
