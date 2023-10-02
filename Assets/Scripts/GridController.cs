@@ -22,7 +22,7 @@ public class GridController : MonoBehaviour
     [SerializeField] private TMP_Text textEpisodes;
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
-    [SerializeField] private float speed = 0.05f;
+    [SerializeField] private float delay = 0.05f;
     [SerializeField] private float learningRate = 0.9f;
     [SerializeField] private int episodes = 1000;
     [SerializeField] private bool startRandomEachEpisode = true;
@@ -208,7 +208,7 @@ public class GridController : MonoBehaviour
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
                         gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
-                        yield return new WaitForSeconds(speed);
+                        yield return new WaitForSeconds(delay);
                     }
                     
                 }
@@ -265,7 +265,7 @@ public class GridController : MonoBehaviour
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
                         gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
-                        yield return new WaitForSeconds(speed);
+                        yield return new WaitForSeconds(delay);
                     }
 
                 }
