@@ -6953,7 +6953,10 @@ MonoBehaviour:
   discountFactor: 1
   speed: 0
   learningRate: 0.9
-  episodes: 1000
+  episodes: 5000
+  startRandomEachEpisode: 1
+  qValuesFileName: qValues
+  qValuesFileExtension: .csv
 --- !u!1 &1483928470
 GameObject:
   m_ObjectHideFlags: 0

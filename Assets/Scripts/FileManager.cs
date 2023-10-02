@@ -14,7 +14,7 @@ public class FileManager
     {
         Filename = fileName;
         Extension = extension;
-        Path = Application.dataPath + fileName + extension;
+        Path = Application.dataPath + "/" + fileName + extension;
     }
 
     public void writeQValuesCSV(TileState[,] gridPosMatrix) 
@@ -29,7 +29,7 @@ public class FileManager
                     {
                         writer.Write(gridPosMatrix[i, j].qValues[k]);
                         
-                        if (k < gridPosMatrix[i, j].qValues.GetLength(1) - 1)
+                        if (k < gridPosMatrix[i, j].qValues.Length - 1)
                         {
                             writer.Write(",");
                         }

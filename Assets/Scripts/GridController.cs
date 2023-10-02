@@ -21,8 +21,11 @@ public class GridController : MonoBehaviour
     [SerializeField] private float learningRate = 0.9f;
     [SerializeField] private int episodes = 1000;
     [SerializeField] private bool startRandomEachEpisode = true;
+    [SerializeField] private string qValuesFileName;
+    [SerializeField] private string qValuesFileExtension;
 
     private TileState[,] gridPosMatrix;
+    private FileManager fileManager;
     private string[] actions = { "up", "right", "down", "left" };
     private bool startPainting = false;
     private bool startTraining = false;
@@ -30,6 +33,7 @@ public class GridController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        fileManager = new FileManager(qValuesFileName, qValuesFileExtension);
         // Accede a las posiciones de los Tiles en el Tilemap
         BoundsInt bounds = tilemap.cellBounds;
         TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
@@ -252,6 +256,7 @@ public class GridController : MonoBehaviour
 
                 }
                 startTraining = false;
+                fileManager.writeQValuesCSV(gridPosMatrix);
             }
             yield return null;
         }
