@@ -23,6 +23,7 @@ public class GridController : MonoBehaviour
     [SerializeField] private bool startRandomEachEpisode = true;
 
     private TileState[,] gridPosMatrix;
+    private FileManager fileManager;
     private string[] actions = { "up", "right", "down", "left" };
     private bool startPainting = false;
     private bool startTraining = false;
