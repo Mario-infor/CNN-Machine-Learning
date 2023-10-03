@@ -32,7 +32,6 @@ public class GridController : MonoBehaviour
     private TileState[,] gridPosMatrix;
     private FileManager fileManager;
     private string[] actions = { "up", "right", "down", "left" };
-    private bool startPainting = false;
     private bool startTraining = false;
     private int winsCount = 0;
     private int episodesCount = 0;
@@ -71,7 +70,6 @@ public class GridController : MonoBehaviour
             StartCoroutine(TrainQLearningStartFix());
     }
 
-    // Update is called once per frame
     void Update()
     {
         if(Input.GetMouseButtonDown(1))
@@ -79,6 +77,9 @@ public class GridController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
             startTraining = true;
+
+        if (Input.GetKeyDown(KeyCode.Q))
+            readStoredDataForQvalues();
 
         textWins.text = $"Wins: {winsCount}";
         textEpisodes.text = $"Episode: {episodesCount}";
@@ -276,28 +277,21 @@ public class GridController : MonoBehaviour
         }
     }
 
-    IEnumerator PaintAllTiles()
+    private void readStoredDataForQvalues()
     {
-        while (true)
-        {
-            if (startPainting)
-            {
+        List<float[]> qvalues = fileManager.readQValuesCSV();
 
-                for (int i = 0; i < gridPosMatrix.GetLength(0); i++)
-                {
-                    for (int j = 0; j < gridPosMatrix.GetLength(1); j++)
-                    {
-                        if (gridPosMatrix[i, j].Reward == 1)
-                        {
-                            Instantiate(visitedTile, new Vector3(gridPosMatrix[i, j].X + 0.5f, gridPosMatrix[i, j].Y + 0.5f), Quaternion.identity);
-                            yield return new WaitForSeconds(0.05f);
-                        }
-                            
-                    }
-                }
-                startPainting = false;
+        int pos = 0;
+
+        for (int i = 0; i < gridPosMatrix.GetLength(0); i++)
+        {
+            for (int j = 0; j < gridPosMatrix.GetLength(1); j++)
+            {
+                gridPosMatrix[i, j].qValues = qvalues[pos];
+                pos++;
             }
-            yield return null;
         }
+
+        Debug.Log("Data File Read Successfully");
     }
 }
