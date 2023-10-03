@@ -20,6 +20,7 @@ public class GridController : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
+    [SerializeField] private TMP_Text textWinsPercentage;
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
     [SerializeField] private float delay = 0.05f;
@@ -33,8 +34,9 @@ public class GridController : MonoBehaviour
     private FileManager fileManager;
     private string[] actions = { "up", "right", "down", "left" };
     private bool startTraining = false;
-    private int winsCount = 0;
-    private int episodesCount = 0;
+    private float winsCount = 0f;
+    private float episodesCount = 0f;
+    private float winsPercentageCount = 0f;
 
     void Start()
     {
@@ -75,14 +77,17 @@ public class GridController : MonoBehaviour
         if(Input.GetMouseButtonDown(1))
             GetTilePosition();
 
-        if (Input.GetKeyDown(KeyCode.Space))
-            startTraining = true;
-
         if (Input.GetKeyDown(KeyCode.Q))
             readStoredDataForQvalues();
 
         textWins.text = $"Wins: {winsCount}";
         textEpisodes.text = $"Episode: {episodesCount}";
+        textWinsPercentage.text = $"Wins %: {winsPercentageCount} %";
+    }
+
+    public void play() 
+    {
+        startTraining = true;
     }
 
     void GetTilePosition() 
@@ -95,12 +100,6 @@ public class GridController : MonoBehaviour
             Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.5f);
             player.transform.position = moveTo;
             Instantiate(visitedTile, moveTo, Quaternion.identity);
-
-            Debug.Log("Tile at: " + location);
-        }
-        else
-        {
-            Debug.Log("No tile at: " + location);
         }
     }
 
@@ -200,7 +199,8 @@ public class GridController : MonoBehaviour
                         int reward = gridPosMatrix[x, y].Reward;
                         if (reward == 100)
                         {
-                            winsCount++;
+                            winsCount += 1;
+                            winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
                         }
 
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
@@ -235,7 +235,6 @@ public class GridController : MonoBehaviour
                 for (int i = 0; i < episodes; i++)
                 {
                     episodesCount = i;
-                    Debug.Log($"Episode: {i}");
                     int x = startX;
                     int y = startY;
 
@@ -257,7 +256,8 @@ public class GridController : MonoBehaviour
 
                         if (reward == 100)
                         {
-                            winsCount++;
+                            winsCount += 1;
+                            winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
                         }
 
                         float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
