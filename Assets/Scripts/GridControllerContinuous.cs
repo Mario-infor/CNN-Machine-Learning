@@ -10,13 +10,12 @@ using UnityEngine.UI;
 using TMPro;
 using TMPro.EditorUtilities;
 
-public class GridController : MonoBehaviour
+public class GridControllerContinuos : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private GameObject visitedTile;
     [SerializeField] private GameObject startTile;
     [SerializeField] private GameObject GoalTile;
-    [SerializeField] private Vector3Int location;
     [SerializeField] private GameObject player;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
@@ -26,23 +25,22 @@ public class GridController : MonoBehaviour
     [SerializeField] private float delay = 0.05f;
     [SerializeField] private float learningRate = 0.9f;
     [SerializeField] private int episodes = 1000;
-    [SerializeField] private bool startRandomEachEpisode = true;
-    [SerializeField] private string qValuesFileName;
-    [SerializeField] private string qValuesFileExtension;
 
     private TileState[,] gridPosMatrix;
-    private FileManager fileManager;
     private string[] actions = { "up", "right", "down", "left" };
     private bool startTraining = false;
     private float winsCount = 0f;
     private float episodesCount = 0f;
     private float winsPercentageCount = 0f;
+    private int randomGoalX;
+    private int randomGoalY;
+    private BoundsInt bounds;
+    private TileBase[] allTiles;
 
     void Start()
     {
-        fileManager = new FileManager(qValuesFileName, qValuesFileExtension);
-        BoundsInt bounds = tilemap.cellBounds;
-        TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
+        bounds = tilemap.cellBounds;
+        allTiles = tilemap.GetTilesBlock(bounds);
         gridPosMatrix = new TileState[bounds.size.x, bounds.size.y];
 
         for (int x = bounds.x; x < bounds.x + bounds.size.x; x++)
@@ -52,46 +50,36 @@ public class GridController : MonoBehaviour
                 Vector3Int cellPosition = new Vector3Int(x, y, 0);
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
-                gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
-                createTile(x - bounds.x, y - bounds.y, visitedTile);
+                //gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
+                if (tile != null)
+                {
+                    createTile(x, y, visitedTile);
+                }
             }
         }
 
-        int randomGoalX;
-        int randomGoalY;
-     
         getStartingLocation(out randomGoalX, out randomGoalY);
-        gridPosMatrix[randomGoalX, randomGoalY].Reward = 100;
         createTile(randomGoalX, randomGoalY, GoalTile);
         movePlayer(randomGoalX, randomGoalY);
 
-        if(startRandomEachEpisode)
-            StartCoroutine(TrainQLearningStartRandom());
-        else
-            StartCoroutine(TrainQLearningStartFix());
+        StartCoroutine(TrainQLearningStartFix());
     }
 
     void Update()
     {
-        /*if(Input.GetMouseButtonDown(1))
-            GetTilePosition();
-
-        if (Input.GetKeyDown(KeyCode.Q))
-            readStoredDataForQvalues();*/
-
         textWins.text = $"Wins: {winsCount}";
         textEpisodes.text = $"Episode: {episodesCount}";
         textWinsPercentage.text = $"Wins %: {winsPercentageCount} %";
     }
 
-    public void play() 
+    public void play()
     {
         startTraining = true;
     }
 
-    void GetTilePosition() 
+    void GetTilePosition()
     {
-        Vector3 mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        /*Vector3 mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         location = tilemap.WorldToCell(mp);
 
         if (tilemap.GetTile(location))
@@ -99,7 +87,7 @@ public class GridController : MonoBehaviour
             Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.5f);
             player.transform.position = moveTo;
             Instantiate(visitedTile, moveTo, Quaternion.identity);
-        }
+        }*/
     }
 
     private bool isTerminalState(int x, int y)
@@ -109,13 +97,13 @@ public class GridController : MonoBehaviour
 
     private void getStartingLocation(out int X, out int Y)
     {
-        X = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
-        Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(1));
+        X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
+        Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
 
-        while (isTerminalState(X, Y))
+        while (!tilemap.GetTile(new Vector3Int(X,Y)))
         {
-            X = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(0));
-            Y = UnityEngine.Random.Range(0, gridPosMatrix.GetLength(1));
+            X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
+            Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
         }
     }
 
@@ -126,7 +114,7 @@ public class GridController : MonoBehaviour
         {
             return Array.IndexOf(gridPosMatrix[x, y].qValues, gridPosMatrix[x, y].qValues.Max());
         }
-        else 
+        else
         {
             return UnityEngine.Random.Range(0, 4);
         }
@@ -134,7 +122,7 @@ public class GridController : MonoBehaviour
 
     private void getNextLocation(int x, int y, int action, out int newX, out int newY)
     {
-        newX = x; 
+        newX = x;
         newY = y;
 
         if (actions[action] == "up")
@@ -155,67 +143,31 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private GameObject createTile(int x, int y, GameObject tile) 
+    private GameObject createTile(int x, int y, GameObject tile)
     {
-        Vector3 pos = new Vector3(gridPosMatrix[x, y].X + 0.5f, gridPosMatrix[x, y].Y + 0.5f);
+        Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
         return Instantiate(tile, pos, Quaternion.identity);
     }
 
     private void movePlayer(int x, int y)
     {
-        Vector3 pos = new Vector3(gridPosMatrix[x, y].X + 0.5f, gridPosMatrix[x, y].Y + 0.5f);
+        Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
         player.transform.position = pos;
     }
 
-    IEnumerator TrainQLearningStartRandom()
+    private int GetReward()
     {
-        while (true)
+        int reward = -1;
+
+        Vector3Int position = tilemap.WorldToCell(player.transform.position);
+
+        if (!tilemap.GetTile(position))
         {
-            if (startTraining)
-            {
-                for (int i = 0; i < episodes; i++)
-                {
-                    episodesCount = i;
-                    int x;
-                    int y;
-                    getStartingLocation(out x, out y);
-                    movePlayer(x, y);
-
-                    while (!isTerminalState(x, y))
-                    {
-                        int actionIndex = getNextAction(x, y, epsilon);
-
-                        int oldX = x;
-                        int oldY = y;
-
-                        getNextLocation(oldX, oldY, actionIndex, out x, out y);
-
-                        /********************************************************************/
-                        //paintTile(x, y, visitedTile);
-                        movePlayer(x, y);
-                        /********************************************************************/
-
-                        int reward = gridPosMatrix[x, y].Reward;
-                        if (reward == 100)
-                        {
-                            winsCount += 1;
-                            winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
-                        }
-
-                        float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
-
-                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max()) - oldQValue;
-
-                        float newQValue = oldQValue + (learningRate * temporalDifference);
-                        gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
-                        yield return new WaitForSeconds(delay);
-                    }
-                    
-                }
-                startTraining = false;
-            }
-            yield return null;
+            reward = -100;
         }
+
+
+        return reward;
     }
 
     IEnumerator TrainQLearningStartFix()
@@ -268,30 +220,10 @@ public class GridController : MonoBehaviour
                         yield return new WaitForSeconds(delay);
                     }
 
-
                 }
                 startTraining = false;
-                //fileManager.writeQValuesCSV(gridPosMatrix);
             }
             yield return null;
         }
-    }
-
-    private void readStoredDataForQvalues()
-    {
-        List<float[]> qvalues = fileManager.readQValuesCSV();
-
-        int pos = 0;
-
-        for (int i = 0; i < gridPosMatrix.GetLength(0); i++)
-        {
-            for (int j = 0; j < gridPosMatrix.GetLength(1); j++)
-            {
-                gridPosMatrix[i, j].qValues = qvalues[pos];
-                pos++;
-            }
-        }
-
-        Debug.Log("Data File Read Successfully");
     }
 }
