@@ -1732,7 +1732,7 @@ MonoBehaviour:
   textWinsPercentage: {fileID: 1122995956}
   epsilon: 0.9
   discountFactor: 1
-  delay: 0.1
+  delay: 0
   learningRate: 0.9
   episodes: 500
 --- !u!1 &1368605385

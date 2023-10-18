@@ -29,15 +29,17 @@ public class GridControllerContinuos : MonoBehaviour
 
     private TileState[,] gridPosMatrix;
     private string[] actions = { "up", "right", "down", "left" };
+    private float[,] actionsDiscreet = {{-1f, 0f}, {0f, 1f}, {1f, 0f}, {0f, -1f} };
     private bool startTraining = false;
     private float winsCount = 0f;
     private float episodesCount = 0f;
     private float winsPercentageCount = 0f;
-    private int randomGoalX;
-    private int randomGoalY;
+    private float randomGoalX;
+    private float randomGoalY;
     private BoundsInt bounds;
     private TileBase[] allTiles;
-    private Vector3Int goalPos = new Vector3Int(-100, -100, 0);
+    private Vector3 goalPos = new Vector3(-100, -100, 0);
+
 
     void Start()
     {
@@ -93,12 +95,13 @@ public class GridControllerContinuos : MonoBehaviour
         }*/
     }
 
-    private bool isTerminalState(int x, int y)
+    private bool isTerminalState(float x, float y)
     {
-        return (!tilemap.GetTile(new Vector3Int(x, y)) || (x == goalPos.x && y == goalPos.y));
+        Vector3Int position = tilemap.WorldToCell(new Vector3(x, y, 0));
+        return !tilemap.GetTile(position) || (x == goalPos.x && y == goalPos.y);
     }
 
-    private void getStartingLocation(out int X, out int Y)
+    private void getStartingLocation(out float X, out float Y)
     {
         X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
         Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
@@ -110,12 +113,11 @@ public class GridControllerContinuos : MonoBehaviour
         }
     }
 
-    private int getNextAction(int x, int y, float epsilon)
+    private int getNextAction(float x, float y, float epsilon)
     {
         System.Random random = new System.Random();
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            return Array.IndexOf(gridPosMatrix[x - bounds.x, y - bounds.y].qValues, gridPosMatrix[x - bounds.x, y - bounds.y].qValues.Max());
             return Array.IndexOf(GetQValueList(x, y), GetQValueList(x, y).Max());
         }
         else
@@ -124,36 +126,19 @@ public class GridControllerContinuos : MonoBehaviour
         }
     }
 
-    private void getNextLocation(int x, int y, int action, out int newX, out int newY)
+    private void getNextLocation(float x, float y, int action, out float newX, out float newY)
     {
-        newX = x;
-        newY = y;
-
-        if (actions[action] == "up")
-        {
-            newX -= 1;
-        }
-        else if (actions[action] == "down")
-        {
-            newX += 1;
-        }
-        else if (actions[action] == "right")
-        {
-            newY += 1;
-        }
-        else if (actions[action] == "left")
-        {
-            newY -= 1;
-        }
+        newX = x + actionsDiscreet[action, 0];
+        newY = y + actionsDiscreet[action, 1];
     }
 
-    private GameObject createTile(int x, int y, GameObject tile)
+    private GameObject createTile(float x, float y, GameObject tile)
     {
         Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
         return Instantiate(tile, pos, Quaternion.identity);
     }
 
-    private void movePlayer(int x, int y)
+    private void movePlayer(float x, float y)
     {
         Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
         player.transform.position = pos;
@@ -172,19 +157,19 @@ public class GridControllerContinuos : MonoBehaviour
         return reward;
     }
 
-    private float GetQValue(int x, int y, int actionIndex)
+    private float GetQValue(float x, float y, int actionIndex)
     {
-        return gridPosMatrix[x - bounds.x, y - bounds.y].qValues[actionIndex];
+        return gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues[actionIndex];
     }
 
-    private float[] GetQValueList(int x, int y)
+    private float[] GetQValueList(float x, float y)
     {
-        return gridPosMatrix[x - bounds.x, y - bounds.y].qValues;
+        return gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues;
     }
 
-    private void SetQValue(int x, int y, int actionIndex, float newQValue)
+    private void SetQValue(float x, float y, int actionIndex, float newQValue)
     {
-        gridPosMatrix[x - bounds.x, y - bounds.y].qValues[actionIndex] = newQValue;
+        gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues[actionIndex] = newQValue;
     }
 
     IEnumerator TrainQLearningStartFix()
@@ -193,8 +178,8 @@ public class GridControllerContinuos : MonoBehaviour
         {
             if (startTraining)
             {
-                int startX;
-                int startY;
+                float startX;
+                float startY;
 
                 getStartingLocation(out startX, out startY);
                 createTile(startX, startY, startTile);
@@ -203,15 +188,15 @@ public class GridControllerContinuos : MonoBehaviour
                 for (int i = 0; i < episodes; i++)
                 {
                     episodesCount = i;
-                    int x = startX;
-                    int y = startY;
+                    float x = startX;
+                    float y = startY;
 
                     while (!isTerminalState(x, y))
                     {
                         int actionIndex = getNextAction(x, y, epsilon);
 
-                        int oldX = x;
-                        int oldY = y;
+                        float oldX = x;
+                        float oldY = y;
 
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
 
