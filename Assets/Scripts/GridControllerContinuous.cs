@@ -116,6 +116,7 @@ public class GridControllerContinuos : MonoBehaviour
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
             return Array.IndexOf(gridPosMatrix[x - bounds.x, y - bounds.y].qValues, gridPosMatrix[x - bounds.x, y - bounds.y].qValues.Max());
+            return Array.IndexOf(GetQValueList(x, y), GetQValueList(x, y).Max());
         }
         else
         {
@@ -161,20 +162,29 @@ public class GridControllerContinuos : MonoBehaviour
     private int GetReward()
     {
         int reward = -1;
-
         Vector3Int position = tilemap.WorldToCell(player.transform.position);
 
         if (!tilemap.GetTile(position))
-        {
             reward = -100;
-        }
         else if (position.x == goalPos.x && position.y == goalPos.y)
-        { 
             reward = 100;
-        }
-
 
         return reward;
+    }
+
+    private float GetQValue(int x, int y, int actionIndex)
+    {
+        return gridPosMatrix[x - bounds.x, y - bounds.y].qValues[actionIndex];
+    }
+
+    private float[] GetQValueList(int x, int y)
+    {
+        return gridPosMatrix[x - bounds.x, y - bounds.y].qValues;
+    }
+
+    private void SetQValue(int x, int y, int actionIndex, float newQValue)
+    {
+        gridPosMatrix[x - bounds.x, y - bounds.y].qValues[actionIndex] = newQValue;
     }
 
     IEnumerator TrainQLearningStartFix()
@@ -218,12 +228,14 @@ public class GridControllerContinuos : MonoBehaviour
                             winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
                         }
 
-                        float oldQValue = gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex];
+                        //float oldQValue = gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex];
+                        float oldQValue = GetQValue(oldX, oldY, actionIndex);
 
-                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x - bounds.x, y - bounds.y].qValues.Max()) - oldQValue;
+                        float temporalDifference = reward + (discountFactor * GetQValueList(x, y).Max()) - oldQValue;
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
-                        gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex] = newQValue;
+                        //gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex] = newQValue;
+                        SetQValue(oldX, oldY, actionIndex, newQValue);
                         yield return new WaitForSeconds(delay);
                     }
 
