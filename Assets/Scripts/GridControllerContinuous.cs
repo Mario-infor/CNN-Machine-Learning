@@ -9,6 +9,7 @@ using UnityEditor.Tilemaps;
 using UnityEngine.UI;
 using TMPro;
 using TMPro.EditorUtilities;
+using UnityEngine.UIElements;
 
 public class GridControllerContinuos : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class GridControllerContinuos : MonoBehaviour
     private int randomGoalY;
     private BoundsInt bounds;
     private TileBase[] allTiles;
+    private Vector3Int goalPos = new Vector3Int(-100, -100, 0);
 
     void Start()
     {
@@ -50,7 +52,7 @@ public class GridControllerContinuos : MonoBehaviour
                 Vector3Int cellPosition = new Vector3Int(x, y, 0);
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
-                //gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
+                gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
                 if (tile != null)
                 {
                     createTile(x, y, visitedTile);
@@ -61,7 +63,8 @@ public class GridControllerContinuos : MonoBehaviour
         getStartingLocation(out randomGoalX, out randomGoalY);
         createTile(randomGoalX, randomGoalY, GoalTile);
         movePlayer(randomGoalX, randomGoalY);
-
+        goalPos.x = randomGoalX;
+        goalPos.y = randomGoalY;
         StartCoroutine(TrainQLearningStartFix());
     }
 
@@ -92,7 +95,7 @@ public class GridControllerContinuos : MonoBehaviour
 
     private bool isTerminalState(int x, int y)
     {
-        return (gridPosMatrix[x, y].Reward != -1);
+        return (!tilemap.GetTile(new Vector3Int(x, y)) || (x == goalPos.x && y == goalPos.y));
     }
 
     private void getStartingLocation(out int X, out int Y)
@@ -100,7 +103,7 @@ public class GridControllerContinuos : MonoBehaviour
         X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
         Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
 
-        while (!tilemap.GetTile(new Vector3Int(X,Y)))
+        while (isTerminalState(X, Y))
         {
             X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
             Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
@@ -112,7 +115,7 @@ public class GridControllerContinuos : MonoBehaviour
         System.Random random = new System.Random();
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            return Array.IndexOf(gridPosMatrix[x, y].qValues, gridPosMatrix[x, y].qValues.Max());
+            return Array.IndexOf(gridPosMatrix[x - bounds.x, y - bounds.y].qValues, gridPosMatrix[x - bounds.x, y - bounds.y].qValues.Max());
         }
         else
         {
@@ -165,6 +168,10 @@ public class GridControllerContinuos : MonoBehaviour
         {
             reward = -100;
         }
+        else if (position.x == goalPos.x && position.y == goalPos.y)
+        { 
+            reward = 100;
+        }
 
 
         return reward;
@@ -203,7 +210,7 @@ public class GridControllerContinuos : MonoBehaviour
                         movePlayer(x, y);
                         /********************************************************************/
 
-                        int reward = gridPosMatrix[x, y].Reward;
+                        int reward = GetReward();
 
                         if (reward == 100)
                         {
@@ -211,12 +218,12 @@ public class GridControllerContinuos : MonoBehaviour
                             winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
                         }
 
-                        float oldQValue = gridPosMatrix[oldX, oldY].qValues[actionIndex];
+                        float oldQValue = gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex];
 
-                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x, y].qValues.Max()) - oldQValue;
+                        float temporalDifference = reward + (discountFactor * gridPosMatrix[x - bounds.x, y - bounds.y].qValues.Max()) - oldQValue;
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
-                        gridPosMatrix[oldX, oldY].qValues[actionIndex] = newQValue;
+                        gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex] = newQValue;
                         yield return new WaitForSeconds(delay);
                     }
 

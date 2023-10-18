@@ -1684,7 +1684,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1192215474}
-  - component: {fileID: 1192215475}
+  - component: {fileID: 1192215476}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -1707,7 +1707,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1192215475
+--- !u!114 &1192215476
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1716,7 +1716,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1192215473}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b253a63fc75c2464d942976e4c46d027, type: 3}
+  m_Script: {fileID: 11500000, guid: c2ecb7db0b34cc143ae61d00a4f44fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 701725388}
@@ -1726,19 +1726,15 @@ MonoBehaviour:
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
-  location: {x: 0, y: 0, z: 0}
   player: {fileID: 2014856139}
   textWins: {fileID: 1989120630}
   textEpisodes: {fileID: 604798970}
   textWinsPercentage: {fileID: 1122995956}
   epsilon: 0.9
   discountFactor: 1
-  delay: 0
+  delay: 0.1
   learningRate: 0.9
-  episodes: 1000
-  startRandomEachEpisode: 1
-  qValuesFileName: 
-  qValuesFileExtension: 
+  episodes: 500
 --- !u!1 &1368605385
 GameObject:
   m_ObjectHideFlags: 0
@@ -2545,8 +2541,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1192215475}
-        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
+      - m_Target: {fileID: 1192215476}
+        m_TargetAssemblyTypeName: GridControllerContinuos, Assembly-CSharp
         m_MethodName: play
         m_Mode: 1
         m_Arguments:
