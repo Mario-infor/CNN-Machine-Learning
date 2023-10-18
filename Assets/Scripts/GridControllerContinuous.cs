@@ -28,7 +28,7 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private int episodes = 1000;
 
     private TileState[,] gridPosMatrix;
-    private float[,] actionsDiscreet = {{-1f, 0f}, {0f, 1f}, {1f, 0f}, {0f, -1f} };
+    private float[,] actionsDiscreet = {{-1f, 0f}, {0f, 1f}, {1f, 0f}, {0f, -1f}};
     private bool startTraining = false;
     private float winsCount = 0f;
     private float episodesCount = 0f;
