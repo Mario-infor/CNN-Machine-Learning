@@ -7,14 +7,15 @@ using Unity.Mathematics;
 public class GaussianSurfaceClass
 {
     public float[] WList { get; set; }
-
-    public GaussianSurfaceClass(int wNumber)
+    public int iterations { get; set; }
+    public GaussianSurfaceClass(int wNumber, int iterations)
     {
+        this.iterations = iterations;
         WList = new float[wNumber];
 
         for (int i = 0; i < WList.Length; i++) 
         {
-            WList[i] = UnityEngine.Random.Range(0.0f, 1.0f) - 0.5f;
+            WList[i] = UnityEngine.Random.Range(-0.5f, 0.5f);
         }
     }
     public float evaluateGaussian(float x, float y, float sigma, float[] center)
@@ -34,14 +35,14 @@ public class GaussianSurfaceClass
         return h;
     }
 
-    public void trainGaussSurface(float x, float y, float alpha, float sigma, List<float[]> centers, int iterations)
+    public void trainGaussSurface(float x, float y, float alpha, float sigma, List<float[]> centers, float newQValue)
     {
         for (int i = 0; i < iterations; i++)
         {
             float h = calculateH(x, y, sigma, centers);
             for (int j = 0; j < WList.Length; j++)
             {
-                WList[j] = WList[j] + alpha * ((0 - h) * evaluateGaussian(x, y, sigma, centers[j]));
+                WList[j] = WList[j] + alpha * ((newQValue - h) * evaluateGaussian(x, y, sigma, centers[j]));
             }
         }
     }

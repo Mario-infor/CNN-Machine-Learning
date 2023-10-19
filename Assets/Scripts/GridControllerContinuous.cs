@@ -18,6 +18,7 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private GameObject visitedTile;
     [SerializeField] private GameObject startTile;
     [SerializeField] private GameObject GoalTile;
+    [SerializeField] private GameObject GaussTile;
     [SerializeField] private GameObject player;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
@@ -40,12 +41,14 @@ public class GridControllerContinuos : MonoBehaviour
     private TileBase[] allTiles;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
     private List<float[]> centers = new List<float[]>();
-    private float sigma = 0.1f;
+    private float sigma = 0.6f;
     private float alpha = 0.1f;
     private int tranningIte = 100;
-    private int stepSize = 5;
+    private int stepSize = 1;
     private int gaussCount;
     private GaussianSurfaceClass[] gaussArray;
+    private int acumaltedReward = 0;
+    private List<GameObject> centersTileList = new List<GameObject>();
     void Start()
     {
         bounds = tilemap.cellBounds;
@@ -84,7 +87,12 @@ public class GridControllerContinuos : MonoBehaviour
         gaussArray = new GaussianSurfaceClass[actionsDiscreet.GetLength(0)];
         for (int i = 0; i < actionsDiscreet.GetLength(0); i++) 
         {
-            gaussArray[i] = new GaussianSurfaceClass(gaussCount);
+            gaussArray[i] = new GaussianSurfaceClass(gaussCount, tranningIte);
+        }
+
+        for (int i = 0; i < gaussArray[0].WList.Length; i++)
+        {
+            centersTileList.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile));
         }
 
         getStartingLocation(out randomGoalX, out randomGoalY);
@@ -100,6 +108,15 @@ public class GridControllerContinuos : MonoBehaviour
         textWins.text = $"Wins: {winsCount}";
         textEpisodes.text = $"Episode: {episodesCount}";
         textWinsPercentage.text = $"Wins %: {winsPercentageCount} %";
+
+        for (int i = 0; i < gaussArray[0].WList.Length; i++)
+        {
+            float x = centersTileList[i].transform.position.x;
+            float y = centersTileList[i].transform.position.y;
+            float z = gaussArray[0].WList[i];
+            centersTileList[i].transform.position = new Vector3(x, y, z);
+        }
+
     }
 
     public void play()
@@ -140,11 +157,10 @@ public class GridControllerContinuos : MonoBehaviour
 
     private int getNextAction(float x, float y, float epsilon)
     {
-        int index = -1;
-        System.Random random = new System.Random();
+        int index = 0;
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            float best = -100f;
+            float best = -1;
             for (int i = 0; i < gaussArray.Length; i++)
             {
                 float eval = gaussArray[i].calculateH(x, y, sigma, centers);
@@ -157,9 +173,8 @@ public class GridControllerContinuos : MonoBehaviour
         }
         else
         {
-            index = UnityEngine.Random.Range(0, actionsDiscreet.GetLength(0));
+            index = UnityEngine.Random.Range(0, 4);
         }
-
         return index;
     }
 
@@ -172,6 +187,12 @@ public class GridControllerContinuos : MonoBehaviour
     private GameObject createTile(float x, float y, GameObject tile)
     {
         Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
+        return Instantiate(tile, pos, Quaternion.identity);
+    }
+
+    private GameObject createGaussCenterTile(float x, float y, float z, GameObject tile)
+    {
+        Vector3 pos = new Vector3(x, y, z);
         return Instantiate(tile, pos, Quaternion.identity);
     }
 
@@ -257,19 +278,23 @@ public class GridControllerContinuos : MonoBehaviour
 
                         int reward = GetReward();
 
+                        acumaltedReward += reward;
+
+                        Debug.Log(acumaltedReward);
+
                         if (reward == 100)
                         {
                             winsCount += 1;
                             winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
                         }
 
-                        //float oldQValue = gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex];
                         float oldQValue = GetQValue(oldX, oldY, actionIndex);
 
                         float temporalDifference = reward + (discountFactor * GetQValueMax(x, y)) - oldQValue;
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
-                        SetQValue(oldX, oldY, actionIndex, newQValue);
+                        //SetQValue(oldX, oldY, actionIndex, newQValue);
+                        gaussArray[actionIndex].trainGaussSurface(oldX, oldY, alpha, sigma, centers, newQValue);
                         yield return new WaitForSeconds(delay);
                     }
 

@@ -1726,6 +1726,8 @@ MonoBehaviour:
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
+  GaussTile: {fileID: 7313128520306717489, guid: 3fe4d64f1886ddf4da7a350ffc93a702,
+    type: 3}
   player: {fileID: 2014856139}
   textWins: {fileID: 1989120630}
   textEpisodes: {fileID: 604798970}
