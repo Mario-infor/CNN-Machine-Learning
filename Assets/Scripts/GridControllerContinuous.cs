@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using TMPro;
 using TMPro.EditorUtilities;
 using UnityEngine.UIElements;
+using System.Reflection;
 
 public class GridControllerContinuos : MonoBehaviour
 {
@@ -38,27 +39,52 @@ public class GridControllerContinuos : MonoBehaviour
     private BoundsInt bounds;
     private TileBase[] allTiles;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
-
-
+    private List<float[]> centers = new List<float[]>();
+    private float sigma = 0.1f;
+    private float alpha = 0.1f;
+    private int tranningIte = 100;
+    private int stepSize = 5;
+    private int gaussCount;
+    private GaussianSurfaceClass[] gaussArray;
     void Start()
     {
         bounds = tilemap.cellBounds;
         allTiles = tilemap.GetTilesBlock(bounds);
         gridPosMatrix = new TileState[bounds.size.x, bounds.size.y];
 
+        int xCenterFlag = 0;
+        int yCenterFlag = 0;
+
         for (int x = bounds.x; x < bounds.x + bounds.size.x; x++)
         {
+            yCenterFlag = 0;
             for (int y = bounds.y; y < bounds.y + bounds.size.y; y++)
             {
                 Vector3Int cellPosition = new Vector3Int(x, y, 0);
                 TileBase tile = allTiles[x - bounds.x + (y - bounds.y) * bounds.size.x];
 
                 gridPosMatrix[x - bounds.x, y - bounds.y] = new TileState(cellPosition.x, cellPosition.y, (tile != null) ? -1 : -100, null);
+                
                 if (tile != null)
-                {
                     createTile(x, y, visitedTile);
+                
+                if (yCenterFlag % stepSize == 0 && xCenterFlag % stepSize == 0)
+                {
+                    float[] temp = {x, y};
+                    centers.Add(temp);
                 }
+                
+                yCenterFlag++;
             }
+
+            xCenterFlag++;
+        }
+
+        gaussCount = centers.Count;
+        gaussArray = new GaussianSurfaceClass[actionsDiscreet.GetLength(0)];
+        for (int i = 0; i < actionsDiscreet.GetLength(0); i++) 
+        {
+            gaussArray[i] = new GaussianSurfaceClass(gaussCount);
         }
 
         getStartingLocation(out randomGoalX, out randomGoalY);
@@ -114,15 +140,27 @@ public class GridControllerContinuos : MonoBehaviour
 
     private int getNextAction(float x, float y, float epsilon)
     {
+        int index = -1;
         System.Random random = new System.Random();
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            return Array.IndexOf(GetQValueList(x, y), GetQValueList(x, y).Max());
+            float best = -100f;
+            for (int i = 0; i < gaussArray.Length; i++)
+            {
+                float eval = gaussArray[i].calculateH(x, y, sigma, centers);
+                if (eval > best)
+                {
+                    best = eval;
+                    index = i;
+                }
+            }
         }
         else
         {
-            return UnityEngine.Random.Range(0, 4);
+            index = UnityEngine.Random.Range(0, actionsDiscreet.GetLength(0));
         }
+
+        return index;
     }
 
     private void getNextLocation(float x, float y, int action, out float newX, out float newY)
@@ -156,20 +194,34 @@ public class GridControllerContinuos : MonoBehaviour
         return reward;
     }
 
-    private float GetQValue(float x, float y, int actionIndex)
+    /*private float GetQValue(float x, float y, int actionIndex)
     {
         return gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues[actionIndex];
-    }
+    }*/
 
-    private float[] GetQValueList(float x, float y)
+    private float GetQValue(float x, float y, int actionIndex)
     {
-        return gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues;
+        return gaussArray[actionIndex].calculateH(x, y, sigma, centers);
     }
 
-    private void SetQValue(float x, float y, int actionIndex, float newQValue)
+    private float GetQValueMax(float x, float y)
+    {
+        float best = -100f;
+        for (int i = 0; i < gaussArray.Length; i++)
+        {
+            float eval = gaussArray[i].calculateH(x, y, sigma, centers);
+            if (eval > best)
+            {
+                best = eval;
+            }
+        }
+        return best;
+    }
+
+    /*private void SetQValue(float x, float y, int actionIndex, float newQValue)
     {
         gridPosMatrix[(int)x - bounds.x, (int)y - bounds.y].qValues[actionIndex] = newQValue;
-    }
+    }*/
 
     IEnumerator TrainQLearningStartFix()
     {
@@ -200,7 +252,6 @@ public class GridControllerContinuos : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
 
                         /********************************************************************/
-                        //paintTile(x, y, visitedTile);
                         movePlayer(x, y);
                         /********************************************************************/
 
@@ -215,10 +266,9 @@ public class GridControllerContinuos : MonoBehaviour
                         //float oldQValue = gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex];
                         float oldQValue = GetQValue(oldX, oldY, actionIndex);
 
-                        float temporalDifference = reward + (discountFactor * GetQValueList(x, y).Max()) - oldQValue;
+                        float temporalDifference = reward + (discountFactor * GetQValueMax(x, y)) - oldQValue;
 
                         float newQValue = oldQValue + (learningRate * temporalDifference);
-                        //gridPosMatrix[oldX - bounds.x, oldY - bounds.y].qValues[actionIndex] = newQValue;
                         SetQValue(oldX, oldY, actionIndex, newQValue);
                         yield return new WaitForSeconds(delay);
                     }
