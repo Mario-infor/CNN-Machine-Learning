@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -7660,7 +7660,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1192215473}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b253a63fc75c2464d942976e4c46d027, type: 3}
+  m_Script: {fileID: 11500000, guid: c2ecb7db0b34cc143ae61d00a4f44fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 701725388}
@@ -7670,7 +7670,14 @@ MonoBehaviour:
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
-  location: {x: 0, y: 0, z: 0}
+  GaussTile1: {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702,
+    type: 3}
+  GaussTile2: {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1,
+    type: 3}
+  GaussTile3: {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6,
+    type: 3}
+  GaussTile4: {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60,
+    type: 3}
   player: {fileID: 2014856139}
   textWins: {fileID: 1821267341}
   textEpisodes: {fileID: 2130273651}
@@ -7679,10 +7686,8 @@ MonoBehaviour:
   discountFactor: 1
   delay: 0
   learningRate: 0.9
-  episodes: 2000
-  startRandomEachEpisode: 1
-  qValuesFileName: qValues
-  qValuesFileExtension: .csv
+  episodes: 1000
+  sigma: 0.1
 --- !u!1 &1428398795
 GameObject:
   m_ObjectHideFlags: 0
@@ -19934,7 +19939,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1192215475}
-        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
+        m_TargetAssemblyTypeName: GridControllerContinuos, Assembly-CSharp
         m_MethodName: play
         m_Mode: 1
         m_Arguments:

@@ -18,7 +18,10 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private GameObject visitedTile;
     [SerializeField] private GameObject startTile;
     [SerializeField] private GameObject GoalTile;
-    [SerializeField] private GameObject GaussTile;
+    [SerializeField] private GameObject GaussTile1;
+    [SerializeField] private GameObject GaussTile2;
+    [SerializeField] private GameObject GaussTile3;
+    [SerializeField] private GameObject GaussTile4;
     [SerializeField] private GameObject player;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
@@ -26,11 +29,14 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
     [SerializeField] private float delay = 0.05f;
-    [SerializeField] private float learningRate = 0.9f;
+    [SerializeField] private float learningRate = 0.1f;
     [SerializeField] private int episodes = 1000;
+    [SerializeField] private float sigma = 0.6f;
 
     private TileState[,] gridPosMatrix;
-    private float[,] actionsDiscreet = {{-1f, 0f}, {0f, 1f}, {1f, 0f}, {0f, -1f}};
+    //private float[,] actionsDiscreet = {{-1f, 0f}, {0f, 1f}, {1f, 0f}, {0f, -1f}};
+    //private float[,] actionsDiscreet = { { 1f, 0f }, { 0f, -1f }, { 0f, 1f }, { -1f, 0f }};
+    private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
     private bool startTraining = false;
     private float winsCount = 0f;
     private float episodesCount = 0f;
@@ -41,14 +47,18 @@ public class GridControllerContinuos : MonoBehaviour
     private TileBase[] allTiles;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
     private List<float[]> centers = new List<float[]>();
-    private float sigma = 0.6f;
+    
     private float alpha = 0.1f;
     private int tranningIte = 100;
     private int stepSize = 1;
     private int gaussCount;
     private GaussianSurfaceClass[] gaussArray;
     private int acumaltedReward = 0;
-    private List<GameObject> centersTileList = new List<GameObject>();
+    private List<GameObject> centersTileList1 = new List<GameObject>();
+    private List<GameObject> centersTileList2 = new List<GameObject>();
+    private List<GameObject> centersTileList3 = new List<GameObject>();
+    private List<GameObject> centersTileList4 = new List<GameObject>();
+    private bool showGaussiansUI = true;
     void Start()
     {
         bounds = tilemap.cellBounds;
@@ -84,17 +94,35 @@ public class GridControllerContinuos : MonoBehaviour
         }
 
         gaussCount = centers.Count;
-        gaussArray = new GaussianSurfaceClass[actionsDiscreet.GetLength(0)];
-        for (int i = 0; i < actionsDiscreet.GetLength(0); i++) 
+        if(showGaussiansUI) 
         {
-            gaussArray[i] = new GaussianSurfaceClass(gaussCount, tranningIte);
-        }
+            gaussArray = new GaussianSurfaceClass[actionsDiscreet.GetLength(0)];
+            for (int i = 0; i < actionsDiscreet.GetLength(0); i++)
+            {
+                gaussArray[i] = new GaussianSurfaceClass(gaussCount, tranningIte);
+            }
 
-        for (int i = 0; i < gaussArray[0].WList.Length; i++)
-        {
-            centersTileList.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile));
-        }
+            for (int i = 0; i < gaussArray[0].WList.Length; i++)
+            {
+                centersTileList1.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile1));
+            }
 
+            for (int i = 0; i < gaussArray[1].WList.Length; i++)
+            {
+                centersTileList2.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile2));
+            }
+
+            for (int i = 0; i < gaussArray[2].WList.Length; i++)
+            {
+                centersTileList3.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile3));
+            }
+
+            for (int i = 0; i < gaussArray[3].WList.Length; i++)
+            {
+                centersTileList4.Add(createGaussCenterTile(centers[i][0], centers[i][1], gaussArray[0].WList[i], GaussTile4));
+            }
+        }
+        
         getStartingLocation(out randomGoalX, out randomGoalY);
         createTile(randomGoalX, randomGoalY, GoalTile);
         movePlayer(randomGoalX, randomGoalY);
@@ -109,14 +137,48 @@ public class GridControllerContinuos : MonoBehaviour
         textEpisodes.text = $"Episode: {episodesCount}";
         textWinsPercentage.text = $"Wins %: {winsPercentageCount} %";
 
-        for (int i = 0; i < gaussArray[0].WList.Length; i++)
+        if (showGaussiansUI)
         {
-            float x = centersTileList[i].transform.position.x;
-            float y = centersTileList[i].transform.position.y;
-            float z = gaussArray[0].WList[i];
-            centersTileList[i].transform.position = new Vector3(x, y, z);
-        }
+            for (int i = 0; i < gaussArray[0].WList.Length; i++)
+            {
+                float x = centersTileList1[i].transform.position.x;
+                float y = centersTileList1[i].transform.position.y;
+                float z = gaussArray[0].WList[i];
+                float circleSize = sigma * 2;
+                centersTileList1[i].transform.position = new Vector3(x, y, z);
+                centersTileList1[i].transform.GetChild(0).gameObject.transform.localScale = new Vector3(circleSize, circleSize, circleSize);
+            }
 
+            for (int i = 0; i < gaussArray[1].WList.Length; i++)
+            {
+                float x = centersTileList2[i].transform.position.x;
+                float y = centersTileList2[i].transform.position.y;
+                float z = gaussArray[1].WList[i];
+                float circleSize = sigma * 2;
+                centersTileList2[i].transform.position = new Vector3(x, y, z);
+                centersTileList2[i].transform.GetChild(0).gameObject.transform.localScale = new Vector3(circleSize, circleSize, circleSize);
+            }
+
+            for (int i = 0; i < gaussArray[2].WList.Length; i++)
+            {
+                float x = centersTileList3[i].transform.position.x;
+                float y = centersTileList3[i].transform.position.y;
+                float z = gaussArray[2].WList[i];
+                float circleSize = sigma * 2;
+                centersTileList3[i].transform.position = new Vector3(x, y, z);
+                centersTileList3[i].transform.GetChild(0).gameObject.transform.localScale = new Vector3(circleSize, circleSize, circleSize);
+            }
+
+            for (int i = 0; i < gaussArray[3].WList.Length; i++)
+            {
+                float x = centersTileList4[i].transform.position.x;
+                float y = centersTileList4[i].transform.position.y;
+                float z = gaussArray[3].WList[i];
+                float circleSize = sigma * 2;
+                centersTileList4[i].transform.position = new Vector3(x, y, z);
+                centersTileList4[i].transform.GetChild(0).gameObject.transform.localScale = new Vector3(circleSize, circleSize, circleSize);
+            }
+        }
     }
 
     public void play()
@@ -157,10 +219,10 @@ public class GridControllerContinuos : MonoBehaviour
 
     private int getNextAction(float x, float y, float epsilon)
     {
-        int index = 0;
+        int index = -1;
         if (UnityEngine.Random.Range(0f, 1f) < epsilon)
         {
-            float best = -1;
+            float best = -100000;
             for (int i = 0; i < gaussArray.Length; i++)
             {
                 float eval = gaussArray[i].calculateH(x, y, sigma, centers);
@@ -169,6 +231,10 @@ public class GridControllerContinuos : MonoBehaviour
                     best = eval;
                     index = i;
                 }
+            }
+            if (index == -1) 
+            {
+                index = UnityEngine.Random.Range(0, 4);
             }
         }
         else
