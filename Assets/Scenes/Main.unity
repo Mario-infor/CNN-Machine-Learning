@@ -7670,8 +7670,11 @@ MonoBehaviour:
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
-  GaussTile1: {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702,
-    type: 3}
+  GaussTile:
+  - {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702, type: 3}
+  - {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1, type: 3}
+  - {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6, type: 3}
+  - {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60, type: 3}
   GaussTile2: {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1,
     type: 3}
   GaussTile3: {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6,
