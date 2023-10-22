@@ -30,6 +30,7 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private float sigma = 0.6f;
     [SerializeField] private int episodes = 1000;
     [SerializeField] private bool showGaussiansUI = true;
+    [SerializeField] private bool startRandomEachEpisode = true;
 
     private TileBase[] allTiles;
     private GaussianSurfaceClass[] gaussArray;
@@ -105,7 +106,11 @@ public class GridControllerContinuos : MonoBehaviour
         movePlayer(randomGoalX, randomGoalY);
         goalPos.x = randomGoalX;
         goalPos.y = randomGoalY;
-        StartCoroutine(TrainQLearningStartFix());
+
+        if (startRandomEachEpisode)
+            StartCoroutine(TrainQLearningStartRandom());
+        else
+            StartCoroutine(TrainQLearningStartFix());
     }
 
     void Update()
@@ -267,6 +272,62 @@ public class GridControllerContinuos : MonoBehaviour
                     episodesCount = i;
                     float x = startX;
                     float y = startY;
+
+                    while (!isTerminalState(x, y))
+                    {
+                        int actionIndex = getNextAction(x, y, epsilon);
+
+                        float oldX = x;
+                        float oldY = y;
+
+                        getNextLocation(oldX, oldY, actionIndex, out x, out y);
+                        movePlayer(x, y);
+
+                        int reward = GetReward();
+
+                        acumaltedReward += reward;
+
+                        Debug.Log(acumaltedReward);
+
+                        if (reward == 100)
+                        {
+                            winsCount += 1;
+                            winsPercentageCount = (float)Math.Round((winsCount / episodesCount) * 100, 2);
+                        }
+
+                        float oldQValue = GetQValue(oldX, oldY, actionIndex);
+
+                        float temporalDifference = reward + (discountFactor * GetQValueMax(x, y)) - oldQValue;
+
+                        float newQValue = oldQValue + (learningRate * temporalDifference);
+
+                        gaussArray[actionIndex].trainGaussSurface(oldX, oldY, alpha, sigma, centers, newQValue);
+
+                        yield return new WaitForSeconds(delay);
+                    }
+
+                }
+                startTraining = false;
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator TrainQLearningStartRandom()
+    {
+        while (true)
+        {
+            if (startTraining)
+            {
+                for (int i = 0; i < episodes; i++)
+                {
+                    float x;
+                    float y;
+
+                    getStartingLocation(out x, out y);
+                    movePlayer(x, y);
+
+                    episodesCount = i;
 
                     while (!isTerminalState(x, y))
                     {
