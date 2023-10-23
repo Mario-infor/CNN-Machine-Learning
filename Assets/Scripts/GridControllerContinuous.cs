@@ -19,8 +19,7 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private GameObject visitedTile;
     [SerializeField] private GameObject startTile;
     [SerializeField] private GameObject GoalTile;
-    [SerializeField] private GameObject GaussTile;
-    [SerializeField] private GameObject RayCaster;
+    [SerializeField] private List<GameObject> GaussTile;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
     [SerializeField] private TMP_Text textWinsPercentage;
@@ -32,17 +31,14 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private int episodes = 1000;
     [SerializeField] private bool showGaussiansUI = true;
     [SerializeField] private bool startRandomEachEpisode = true;
-    [SerializeField] private bool test = false;
 
     private TileBase[] allTiles;
     private GaussianSurfaceClass[] gaussArray;
     private List<List<GameObject>> listCentersTileList = new List<List<GameObject>>();
-    private Collider2D[] colliders = new Collider2D[5];
     private BoundsInt bounds;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
     private List<float[]> centers = new List<float[]>();
-    //private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
-    private float[,] actionsDiscreet;
+    private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
     private float winsCount = 0f;
     private float episodesCount = 0f;
     private float winsPercentageCount = 0f;
@@ -54,13 +50,10 @@ public class GridControllerContinuos : MonoBehaviour
     private int gaussCount;
     private int acumaltedReward = 0;
     private bool startTraining = false;
-
     void Start()
     {
         bounds = tilemap.cellBounds;
         allTiles = tilemap.GetTilesBlock(bounds);
-
-        actionsDiscreet = fillActions();
 
         int xCenterFlag = 0;
         int yCenterFlag = 0;
@@ -75,13 +68,13 @@ public class GridControllerContinuos : MonoBehaviour
 
                 if (tile != null)
                     createTile(x, y, visitedTile);
-
+                
                 if (yCenterFlag % stepSize == 0 && xCenterFlag % stepSize == 0)
                 {
-                    float[] temp = { x, y };
+                    float[] temp = {x, y};
                     centers.Add(temp);
                 }
-
+                
                 yCenterFlag++;
             }
 
@@ -97,20 +90,20 @@ public class GridControllerContinuos : MonoBehaviour
             listCentersTileList.Add(new List<GameObject>());
         }
 
-        if (showGaussiansUI)
+        if (showGaussiansUI) 
         {
             for (int i = 0; i < listCentersTileList.Count; i++)
             {
                 for (int j = 0; j < centers.Count; j++)
                 {
-                    listCentersTileList[i].Add(createGaussCenterTile(centers[j][0], centers[j][1], gaussArray[i].WList[j], GaussTile));
+                    listCentersTileList[i].Add(createGaussCenterTile(centers[j][0], centers[j][1], gaussArray[i].WList[j], GaussTile[i]));
                 }
             }
         }
-
+        
         getStartingLocation(out randomGoalX, out randomGoalY);
-        movePlayer(randomGoalX, randomGoalY);
         createTile(randomGoalX, randomGoalY, GoalTile);
+        movePlayer(randomGoalX, randomGoalY);
         goalPos.x = randomGoalX;
         goalPos.y = randomGoalY;
 
@@ -130,62 +123,21 @@ public class GridControllerContinuos : MonoBehaviour
         {
             for (int i = 0; i < gaussArray.Length; i++)
             {
-                for (int j = 0; j < gaussArray[i].WList.Length; j++)
+                for (int j = 0; j < gaussArray[i].WList.Length; j++) 
                 {
                     float x = listCentersTileList[i][j].transform.position.x;
                     float y = listCentersTileList[i][j].transform.position.y;
                     float z = gaussArray[i].WList[j];
                     listCentersTileList[i][j].transform.position = new Vector3(x, y, z);
                 }
-
+                    
             }
-        }
-
-        Physics2D.OverlapCollider(player.GetComponent<Collider2D>(), new ContactFilter2D(), colliders);
-
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i] != null)
-            {
-                Debug.Log(colliders[i].tag);
-            }
-        }
-
-        if (test)
-        {
-            Debug.Log(GetReward(/*player.transform.position.x, player.transform.position.y*/));
         }
     }
 
     public void play()
     {
         startTraining = true;
-    }
-
-    private float[,] fillActions()
-    {
-        float[,] actions =
-        {
-            { 0f, 1f },
-            { 1f, 1f },
-            { 1f, 0f },
-            { 1f, -1f },
-            { 0f, -1f },
-            { -1f, -1f },
-            { -1f, 0f },
-            { -1f, -1f },
-
-            { 0f, 0.5f },
-            { 0.5f, 0.5f },
-            { 0.5f, 0f },
-            { 0.5f, -0.5f },
-            { 0f, -0.5f },
-            { -0.5f, -0.5f },
-            { -0.5f, 0f },
-            { -0.5f, -0.5f },
-        };
-
-        return actions;
     }
 
     void GetTilePosition()
@@ -201,21 +153,21 @@ public class GridControllerContinuos : MonoBehaviour
         }*/
     }
 
-    private bool IsTerminalState(float x, float y)
+    private bool isTerminalState(float x, float y)
     {
         Vector3Int position = tilemap.WorldToCell(new Vector3(x, y, 0));
         return !tilemap.GetTile(position) || (x == goalPos.x && y == goalPos.y);
     }
 
-    private void getStartingLocation(out float x, out float y)
+    private void getStartingLocation(out float X, out float Y)
     {
-        x = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
-        y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
+        X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
+        Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
 
-        while (IsTerminalState(x, y))
+        while (isTerminalState(X, Y))
         {
-            x = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
-            y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
+            X = UnityEngine.Random.Range(bounds.xMin, bounds.xMax);
+            Y = UnityEngine.Random.Range(bounds.yMin, bounds.yMax);
         }
     }
 
@@ -234,7 +186,7 @@ public class GridControllerContinuos : MonoBehaviour
                     index = i;
                 }
             }
-            if (index == -1)
+            if (index == -1) 
             {
                 index = UnityEngine.Random.Range(0, 4);
             }
@@ -266,82 +218,22 @@ public class GridControllerContinuos : MonoBehaviour
 
     private void movePlayer(float x, float y)
     {
-        Vector3 pos = new Vector3(x, y);
+        Vector3 pos = new Vector3(x + 0.5f, y + 0.5f);
         player.transform.position = pos;
     }
 
-    private int GetReward(/*float x, float y*/)
+    private int GetReward()
     {
         int reward = -1;
+        Vector3Int position = tilemap.WorldToCell(player.transform.position);
 
-        //Vector3Int position = tilemap.WorldToCell(player.transform.position);
-        //Collider2D[] colliders = new Collider2D[5];
-        //int numColliders = Physics2D.OverlapCollider(player.GetComponent<Collider2D>(), new ContactFilter2D(), colliders);
-
-        /*RaycastHit2D hit = Physics2D.Raycast(player.transform.position, Vector2.right, 0.01f);
-
-        if(hit.collider == null)
+        if (!tilemap.GetTile(position))
             reward = -100;
-        else if (hit.collider.CompareTag("Finish"))
-            reward = 100;*/
-
-
-        /*Collider2D collider = player.transform.GetComponent<DetectCollision>().collider;
-
-        if (!collider)
-            reward = -100;*/
-
-        //for (int i = 0; i < collider.Length; i++)
-        //{
-        //if (collider.CompareTag("Finish"))
-        //  reward = 100;
-        //}    
-
-
-        /*if (!tilemap.GetTile(position))
-            reward = -100;
-        else if (hit.collider.CompareTag("Finish"))
-            reward = 100;*/
-
-
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i] == null)
-            {
-                reward = -100;
-            }
-            else if (colliders[i].CompareTag("Finish"))
-            {
-                reward = 100;
-                break;
-            }
-        }
+        else if (position.x == goalPos.x && position.y == goalPos.y)
+            reward = 100;
 
         return reward;
     }
-
-    /*private bool ContinueSearching()
-    {
-        bool continueSeraching = true;
-
-        //Collider2D[] colliders = new Collider2D[5];
-        //int numColliders = Physics2D.OverlapCollider(player.GetComponent<Collider2D>(), new ContactFilter2D(), colliders);
-
-        Collider2D collider = player.transform.GetComponent<DetectCollision>().collider;
-
-        if (!collider)
-            continueSeraching = false;
-        else
-        {
-            //for (int i = 0; i < numColliders; i++)
-            //{
-                if (collider.CompareTag("Finish"))
-                    continueSeraching = false;
-            //}
-        }
-
-        return continueSeraching;
-    }*/
 
     private float GetQValue(float x, float y, int actionIndex)
     {
@@ -381,7 +273,7 @@ public class GridControllerContinuos : MonoBehaviour
                     float x = startX;
                     float y = startY;
 
-                    while (GetReward() == -1)
+                    while (!isTerminalState(x, y))
                     {
                         int actionIndex = getNextAction(x, y, epsilon);
 
@@ -391,7 +283,7 @@ public class GridControllerContinuos : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
                         movePlayer(x, y);
 
-                        int reward = GetReward(/*x, y*/);
+                        int reward = GetReward();
 
                         acumaltedReward += reward;
 
@@ -437,7 +329,7 @@ public class GridControllerContinuos : MonoBehaviour
 
                     episodesCount = i;
 
-                    while (!IsTerminalState(x, y))
+                    while (!isTerminalState(x, y))
                     {
                         int actionIndex = getNextAction(x, y, epsilon);
 
@@ -447,7 +339,7 @@ public class GridControllerContinuos : MonoBehaviour
                         getNextLocation(oldX, oldY, actionIndex, out x, out y);
                         movePlayer(x, y);
 
-                        int reward = GetReward(/*x, y*/);
+                        int reward = GetReward();
 
                         acumaltedReward += reward;
 

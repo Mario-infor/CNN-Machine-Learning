@@ -7664,15 +7664,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 701725388}
-  player: {fileID: 2014856139}
   visitedTile: {fileID: 7313128520306717489, guid: 4eed5bc9549322e4b967d61d046266ad,
     type: 3}
   startTile: {fileID: 7313128520306717489, guid: eca0516100d26f64c9816244318f1ada,
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
-  GaussTile: {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702,
+  GaussTile:
+  - {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702, type: 3}
+  - {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1, type: 3}
+  - {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6, type: 3}
+  - {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60, type: 3}
+  GaussTile2: {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1,
     type: 3}
+  GaussTile3: {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6,
+    type: 3}
+  GaussTile4: {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60,
+    type: 3}
+  player: {fileID: 2014856139}
   textWins: {fileID: 1821267341}
   textEpisodes: {fileID: 2130273651}
   textWinsPercentage: {fileID: 411962995}
@@ -7680,10 +7689,8 @@ MonoBehaviour:
   discountFactor: 1
   delay: 0
   learningRate: 0.9
-  sigma: 0.1
   episodes: 1000
-  showGaussiansUI: 1
-  startRandomEachEpisode: 0
+  sigma: 0.1
 --- !u!1 &1428398795
 GameObject:
   m_ObjectHideFlags: 0
@@ -22708,10 +22715,35 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5628018140324151388, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018140324151390, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018140324151390, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018140324151390, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1869315837
+      objectReference: {fileID: 0}
     - target: {fileID: 5628018141983903104, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
         type: 3}
       propertyPath: m_Name
       value: PF Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903104, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5628018141983903106, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
         type: 3}
@@ -22763,10 +22795,69 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903107, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903107, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903107, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1869315837
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903116, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903116, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903116, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Offset.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903116, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_Offset.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903116, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903119, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: speed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903119, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: offsetX
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5628018141983903119, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      propertyPath: offsetY
+      value: 0.3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5628018141983903104, guid: ef67ba864d1ecc042b5f4cf48455c0a6,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2014856146}
   m_SourcePrefab: {fileID: 100100000, guid: ef67ba864d1ecc042b5f4cf48455c0a6, type: 3}
 --- !u!1 &2014856139 stripped
 GameObject:
@@ -22774,6 +22865,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1988150726}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2014856146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014856139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 968d733ac7256944c81ed7eaaaf62297, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2130273649
 GameObject:
   m_ObjectHideFlags: 0
