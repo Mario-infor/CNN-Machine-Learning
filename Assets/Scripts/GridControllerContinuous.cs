@@ -150,6 +150,16 @@ public class GridControllerContinuos : MonoBehaviour
             { -1f, 1f },
             { 1f, -1f },
             { 1f, 1f },
+
+            { 0f, -2f },
+            { 0f, 2f },
+            { -2f, 0f },
+            { 2f, 0f },
+
+            { -2f, -2f },
+            { -2f, 2f },
+            { 2f, -2f },
+            { 2f, 2f }
         };
         return actionsDiscreet;
     }
