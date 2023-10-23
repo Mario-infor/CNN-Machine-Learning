@@ -7683,7 +7683,7 @@ MonoBehaviour:
   sigma: 0.1
   episodes: 1000
   showGaussiansUI: 1
-  startRandomEachEpisode: 1
+  startRandomEachEpisode: 0
 --- !u!1 &1428398795
 GameObject:
   m_ObjectHideFlags: 0

@@ -1735,8 +1735,8 @@ MonoBehaviour:
   epsilon: 0.9
   discountFactor: 1
   delay: 0
-  learningRate: 0.1
-  sigma: 0.5
+  learningRate: 0.9
+  sigma: 0.1
   episodes: 500
   showGaussiansUI: 1
   startRandomEachEpisode: 0

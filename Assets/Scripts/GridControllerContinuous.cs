@@ -38,7 +38,8 @@ public class GridControllerContinuos : MonoBehaviour
     private BoundsInt bounds;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
     private List<float[]> centers = new List<float[]>();
-    private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
+    //private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
+    private float[,] actionsDiscreet;
     private float winsCount = 0f;
     private float episodesCount = 0f;
     private float winsPercentageCount = 0f;
@@ -55,6 +56,8 @@ public class GridControllerContinuos : MonoBehaviour
         bounds = tilemap.cellBounds;
         allTiles = tilemap.GetTilesBlock(bounds);
 
+        actionsDiscreet = FillMovements();
+
         int xCenterFlag = 0;
         int yCenterFlag = 0;
 
@@ -68,13 +71,13 @@ public class GridControllerContinuos : MonoBehaviour
 
                 if (tile != null)
                     createTile(x, y, visitedTile);
-                
+
                 if (yCenterFlag % stepSize == 0 && xCenterFlag % stepSize == 0)
                 {
-                    float[] temp = {x, y};
+                    float[] temp = { x, y };
                     centers.Add(temp);
                 }
-                
+
                 yCenterFlag++;
             }
 
@@ -90,7 +93,7 @@ public class GridControllerContinuos : MonoBehaviour
             listCentersTileList.Add(new List<GameObject>());
         }
 
-        if (showGaussiansUI) 
+        if (showGaussiansUI)
         {
             for (int i = 0; i < listCentersTileList.Count; i++)
             {
@@ -100,7 +103,7 @@ public class GridControllerContinuos : MonoBehaviour
                 }
             }
         }
-        
+
         getStartingLocation(out randomGoalX, out randomGoalY);
         createTile(randomGoalX, randomGoalY, GoalTile);
         movePlayer(randomGoalX, randomGoalY);
@@ -132,6 +135,23 @@ public class GridControllerContinuos : MonoBehaviour
                 }
             }
         }
+    }
+
+    private float[,] FillMovements()
+    {
+        float[,] actionsDiscreet =
+        {
+            { 0f, -1f },
+            { 0f, 1f },
+            { -1f, 0f },
+            { 1f, 0f },
+
+            { -1f, -1f },
+            { -1f, 1f },
+            { 1f, -1f },
+            { 1f, 1f },
+        };
+        return actionsDiscreet;
     }
 
     public void play()
@@ -185,7 +205,7 @@ public class GridControllerContinuos : MonoBehaviour
                     index = i;
                 }
             }
-            if (index == -1) 
+            if (index == -1)
             {
                 index = UnityEngine.Random.Range(0, 4);
             }
