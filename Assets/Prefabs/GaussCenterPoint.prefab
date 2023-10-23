@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3189082729135465231}
   - component: {fileID: 6262089562819296207}
   m_Layer: 0
-  m_Name: GaussCenterPoint 3
+  m_Name: GaussCenterPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b00e4c28c94a55f4481c47a378b40e48, type: 2}
+  - {fileID: 2100000, guid: 72de3f71529c61449bab19213d34a5a9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -159,7 +159,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b,
     type: 3}
-  m_Color: {r: 0, g: 1, b: 0.016062737, a: 0.21960784}
+  m_Color: {r: 1, g: 0, b: 0.88658094, a: 0.21960784}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

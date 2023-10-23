@@ -7664,24 +7664,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 701725388}
+  player: {fileID: 2014856139}
   visitedTile: {fileID: 7313128520306717489, guid: 4eed5bc9549322e4b967d61d046266ad,
     type: 3}
   startTile: {fileID: 7313128520306717489, guid: eca0516100d26f64c9816244318f1ada,
     type: 3}
   GoalTile: {fileID: 7313128520306717489, guid: 04316a4b72614f34ca8212c24d2476d8,
     type: 3}
-  GaussTile:
-  - {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702, type: 3}
-  - {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1, type: 3}
-  - {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6, type: 3}
-  - {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60, type: 3}
-  GaussTile2: {fileID: 440272198123558975, guid: 765e70567cd86d84895b3bf0e33895a1,
+  GaussTile: {fileID: 440272198123558975, guid: 3fe4d64f1886ddf4da7a350ffc93a702,
     type: 3}
-  GaussTile3: {fileID: 440272198123558975, guid: c6b300cbb33083f45bc62b2d031588d6,
-    type: 3}
-  GaussTile4: {fileID: 440272198123558975, guid: 7939d6acd9636bc45beabdb461f74c60,
-    type: 3}
-  player: {fileID: 2014856139}
   textWins: {fileID: 1821267341}
   textEpisodes: {fileID: 2130273651}
   textWinsPercentage: {fileID: 411962995}
@@ -7689,8 +7680,10 @@ MonoBehaviour:
   discountFactor: 1
   delay: 0
   learningRate: 0.9
-  episodes: 1000
   sigma: 0.1
+  episodes: 1000
+  showGaussiansUI: 1
+  startRandomEachEpisode: 1
 --- !u!1 &1428398795
 GameObject:
   m_ObjectHideFlags: 0

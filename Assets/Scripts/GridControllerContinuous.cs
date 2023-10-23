@@ -19,7 +19,7 @@ public class GridControllerContinuos : MonoBehaviour
     [SerializeField] private GameObject visitedTile;
     [SerializeField] private GameObject startTile;
     [SerializeField] private GameObject GoalTile;
-    [SerializeField] private List<GameObject> GaussTile;
+    [SerializeField] private GameObject GaussTile;
     [SerializeField] private TMP_Text textWins;
     [SerializeField] private TMP_Text textEpisodes;
     [SerializeField] private TMP_Text textWinsPercentage;
@@ -96,7 +96,7 @@ public class GridControllerContinuos : MonoBehaviour
             {
                 for (int j = 0; j < centers.Count; j++)
                 {
-                    listCentersTileList[i].Add(createGaussCenterTile(centers[j][0], centers[j][1], gaussArray[i].WList[j], GaussTile[i]));
+                    listCentersTileList[i].Add(createGaussCenterTile(centers[j][0], centers[j][1], gaussArray[i].WList[j], GaussTile));
                 }
             }
         }
@@ -121,16 +121,15 @@ public class GridControllerContinuos : MonoBehaviour
 
         if (showGaussiansUI)
         {
-            for (int i = 0; i < gaussArray.Length; i++)
+            for (int i = 0; i < listCentersTileList.Count; i++)
             {
-                for (int j = 0; j < gaussArray[i].WList.Length; j++) 
+                for (int j = 0; j < gaussArray[i].WList.Length; j++)
                 {
                     float x = listCentersTileList[i][j].transform.position.x;
                     float y = listCentersTileList[i][j].transform.position.y;
                     float z = gaussArray[i].WList[j];
                     listCentersTileList[i][j].transform.position = new Vector3(x, y, z);
                 }
-                    
             }
         }
     }
