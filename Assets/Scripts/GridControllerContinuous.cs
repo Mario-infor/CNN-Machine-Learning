@@ -14,22 +14,38 @@ using System.Reflection;
 
 public class GridControllerContinuos : MonoBehaviour
 {
+    [Tooltip("Tilemap on which the player will train.")]
     [SerializeField] private Tilemap tilemap;
+    [Tooltip("Prefab object that represents the player.")]
     [SerializeField] private GameObject player;
+    [Tooltip("Prefab object that represents visited tiles by the player.")]
     [SerializeField] private GameObject visitedTile;
+    [Tooltip("Prefab object that represents where the player will start on each epoch.")]
     [SerializeField] private GameObject startTile;
+    [Tooltip("Prefab object that represents the goal tile the player is looking for.")]
     [SerializeField] private GameObject GoalTile;
+    [Tooltip("Prefab object that represents the centers of the gaussian surface.")]
     [SerializeField] private GameObject GaussTile;
+    [Tooltip("Text on cavas that shows the amount of times the player has found the goal.")]
     [SerializeField] private TMP_Text textWins;
+    [Tooltip("Text on cavas that shows the current episode of the training process.")]
     [SerializeField] private TMP_Text textEpisodes;
+    [Tooltip("Text on cavas that shows porcentage of times the player has reached the goal vs the number of epochs.")]
     [SerializeField] private TMP_Text textWinsPercentage;
+    [Tooltip("Value that decides the frecuency at which the best move is selected (higher means best move is selected more).")]
     [SerializeField] private float epsilon = 0.9f;
     [SerializeField] private float discountFactor = 1f;
+    [Tooltip("Value that represents a delay between an epoch ending and the next one starting.")]
     [SerializeField] private float delay = 0.05f;
+    [Tooltip("Value that controls the rate al which the gaussian surfaces update their weights.")]
     [SerializeField] private float learningRate = 0.1f;
+    [Tooltip("Standar deviation for gaussians on gaussian surfaces.")]
     [SerializeField] private float sigma = 0.6f;
+    [Tooltip("Number of trainning epoch before stopping the program.")]
     [SerializeField] private int episodes = 1000;
+    [Tooltip("Show how gaussian center move through the trainning process.")]
     [SerializeField] private bool showGaussiansUI = true;
+    [Tooltip("Player will start at a random location on each epoch.")]
     [SerializeField] private bool startRandomEachEpisode = true;
 
     private TileBase[] allTiles;
