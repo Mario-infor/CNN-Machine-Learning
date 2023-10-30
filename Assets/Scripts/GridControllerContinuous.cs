@@ -54,7 +54,6 @@ public class GridControllerContinuos : MonoBehaviour
     private BoundsInt bounds;
     private Vector3 goalPos = new Vector3(-100, -100, 0);
     private List<float[]> centers = new List<float[]>();
-    //private float[,] actionsDiscreet = { { 0f, -1f }, { 0f, 1f }, { -1f, 0f }, { 1f, 0f } };
     private float[,] actionsDiscreet;
     private float winsCount = 0f;
     private float episodesCount = 0f;
