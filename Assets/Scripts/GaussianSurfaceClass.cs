@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using UnityEngine;
-using Unity.Mathematics;
 
+/*
+ * Class that represents a gaussian surface with its behaviors and the W values.
+ */
 public class GaussianSurfaceClass
 {
     public float[] WList { get; set; }
@@ -18,6 +19,8 @@ public class GaussianSurfaceClass
             WList[i] = UnityEngine.Random.Range(-0.5f, 0.5f);
         }
     }
+
+    // Evaluate a (x, y) point on the gaussian and returns the z value (equivalent to qValue).
     public float evaluateGaussian(float x, float y, float sigma, float[] center)
     {
         double gaussX = Math.Pow(x - center[0], 2) / (2 * Math.Pow(sigma, 2));
@@ -25,6 +28,9 @@ public class GaussianSurfaceClass
 
         return (float)Math.Exp(-(gaussX + gaussY));
     }
+
+    // Evaluates a point (x, y) in every gasussian on the surface and multiplies it by the corresponding W.
+    // This is used on the surface traninning process.
     public float calculateH(float x, float y, float sigma, List<float[]> centers)
     {
         float h = 0;
@@ -35,6 +41,7 @@ public class GaussianSurfaceClass
         return h;
     }
 
+    // Use a point (x, y) to train the gaussian surface and update the W values.
     public void trainGaussSurface(float x, float y, float alpha, float sigma, List<float[]> centers, float newQValue)
     {
         for (int i = 0; i < iterations; i++)

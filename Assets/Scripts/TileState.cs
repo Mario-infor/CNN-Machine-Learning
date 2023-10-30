@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/*
+ * Auxiliary class which goes on every useful position of the tilemap and stores the qValues 
+ * for all four moves, and the reward of the corresponding cell.
+ */
+
 public class TileState
 {
     public int X { get; set; }

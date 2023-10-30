@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Red tile behavior; it grows when the player collides whit it.
+ */
 public class GrowScale : MonoBehaviour
 {
     [SerializeField] private float scaleRate = 0.01f; 

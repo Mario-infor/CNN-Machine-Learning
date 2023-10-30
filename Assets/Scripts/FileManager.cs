@@ -17,6 +17,7 @@ public class FileManager
         Path = Application.dataPath + "/" + fileName + extension;
     }
 
+    // Save qValues matrix to a file.
     public void writeQValuesCSV(TileState[,] gridPosMatrix) 
     {
         using (StreamWriter writer = new StreamWriter(Path))
@@ -40,6 +41,7 @@ public class FileManager
         }
     }
 
+    // Read qValues matrix from a file.
     public List<float[]> readQValuesCSV()
     {
         List<float[]> qValues = new List<float[]>();

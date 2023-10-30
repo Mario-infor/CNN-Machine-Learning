@@ -61,6 +61,7 @@ public class GridControllerContinuos : MonoBehaviour
         int xCenterFlag = 0;
         int yCenterFlag = 0;
 
+        // Loop through all tilemap positions and create red tiles and gaussian centers where needed.
         for (int x = bounds.x; x < bounds.x + bounds.size.x; x++)
         {
             yCenterFlag = 0;
@@ -118,10 +119,12 @@ public class GridControllerContinuos : MonoBehaviour
 
     void Update()
     {
+        // Update info on canvas.
         textWins.text = $"Wins: {winsCount}";
         textEpisodes.text = $"Episode: {episodesCount}";
         textWinsPercentage.text = $"Wins %: {winsPercentageCount} %";
 
+        // Show representation of gaussian surfaces.
         if (showGaussiansUI)
         {
             for (int i = 0; i < listCentersTileList.Count; i++)
@@ -137,6 +140,7 @@ public class GridControllerContinuos : MonoBehaviour
         }
     }
 
+    // All posible movements the character can do.
     private float[,] FillMovements()
     {
         float[,] actionsDiscreet =
@@ -167,19 +171,6 @@ public class GridControllerContinuos : MonoBehaviour
     public void play()
     {
         startTraining = true;
-    }
-
-    void GetTilePosition()
-    {
-        /*Vector3 mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        location = tilemap.WorldToCell(mp);
-
-        if (tilemap.GetTile(location))
-        {
-            Vector3 moveTo = new Vector3(location.x + 0.5f, location.y + 0.5f);
-            player.transform.position = moveTo;
-            Instantiate(visitedTile, moveTo, Quaternion.identity);
-        }*/
     }
 
     private bool isTerminalState(float x, float y)
